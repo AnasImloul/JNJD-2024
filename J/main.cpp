@@ -1,4 +1,5 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -13,6 +14,7 @@ int solve(vector<string>& logs) {
             }
         }
     }
+    return res;
 }
 
 int main() {
