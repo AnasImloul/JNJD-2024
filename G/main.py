@@ -1,71 +1,65 @@
-xvariables = dict()
-
-
-def to_str(s: memoryview):
-    return s.tobytes().decode()
+variables = dict()
 
 
 class Parser:
-    @staticmethod
-    def parse_parentheses(exp):
-        depth = 1
-        i = 1
-        while i < len(exp) and depth > 0:
-            if chr(exp[i]) == '(':
-                depth += 1
-            elif chr(exp[i]) == ')':
-                depth -= 1
-            i += 1
-        return Parser.parse(exp[1:i - 1]), exp[i:]
+    def __init__(self, exp):
+        self.exp = exp
+        self.match = [-1 for _ in range(len(exp))]
+        s = []
+        for i, c in enumerate(exp):
+            if c == '(':
+                s.append(i)
+            elif c == ')':
+                self.match[s.pop()] = i
 
-    @staticmethod
-    def parse_literal(exp):
-        i = 1
-        while i < len(exp) and chr(exp[i]) != '"':
-            i += 1
-        return to_str(exp[1: i]), exp[i + 1:]
+    def parse_parentheses(self, i, j):
+        k = self.match[i]
+        return self.parse(i + 1, k), k + 1
 
-    @staticmethod
-    def parse_identifier(exp):
-        i = 0
-        while i < len(exp) and chr(exp[i]).isalpha():
-            i += 1
-        identifier = to_str(exp[:i])
-        return variables.get(identifier, identifier), exp[i:]
+    def parse_literal(self, i, j):
+        k = i + 1
+        while k < j and self.exp[k] != '"':
+            k += 1
+        return self.exp[i + 1: k], k + 1
 
-    @staticmethod
-    def parse_number(exp):
-        n = exp[0] - ord('0')
-        if chr(exp[2]) == '(':
-            left, rest = Parser.parse_parentheses(exp[2:])
-            return n * left, rest
-        elif chr(exp[2]) == '"':
-            left, rest = Parser.parse_literal(exp[2:])
-            return n * left, rest
-        elif chr(exp[2]).isalpha():
-            left, rest = Parser.parse_identifier(exp[2:])
-            return n * left, rest
+    def parse_identifier(self, i, j):
+        k = i
+        while k < j and self.exp[k].isalpha():
+            k += 1
+        identifier = self.exp[i:k]
+        return variables.get(identifier, identifier), k
+
+    def parse_number(self, i, j):
+        n = int(self.exp[i])
+        if self.exp[i + 2] == '(':
+            left, k = self.parse_parentheses(i + 2, j)
+            return n * left, k
+        elif self.exp[i + 2] == '"':
+            left, k = self.parse_literal(i + 2, j)
+            return n * left, k
+        elif self.exp[i + 2].isalpha():
+            left, k = self.parse_identifier(i + 2, j)
+            return n * left, k
         else:
-            return n, exp[2:]
+            return n, i + 2
 
-    @staticmethod
-    def parse(exp):
-        if not exp:
+    def parse(self, i, j):
+        if i == j:
             return ""
-        if chr(exp[0]) == '(':
-            left, rest = Parser.parse_parentheses(exp)
-            return left + Parser.parse(rest)
-        elif chr(exp[0]) == '"':
-            left, rest = Parser.parse_literal(exp)
-            return left + Parser.parse(rest)
-        elif chr(exp[0]).isalpha():
-            left, rest = Parser.parse_identifier(exp)
-            return left + Parser.parse(rest)
-        elif chr(exp[0]).isdigit():
-            left, rest = Parser.parse_number(exp)
-            return left + Parser.parse(rest)
-        elif chr(exp[0]) == '+':
-            return Parser.parse(exp[1:])
+        if self.exp[i] == '(':
+            left, k = self.parse_parentheses(i, j)
+            return left + self.parse(k, j)
+        elif self.exp[i] == '"':
+            left, k = self.parse_literal(i, j)
+            return left + self.parse(k, j)
+        elif self.exp[i].isalpha():
+            left, k = self.parse_identifier(i, j)
+            return left + self.parse(k, j)
+        elif self.exp[i].isdigit():
+            left, k = self.parse_number(i, j)
+            return left + self.parse(k, j)
+        elif self.exp[i] == '+':
+            return self.parse(i + 1, j)
 
 
 def main():
@@ -73,8 +67,9 @@ def main():
         command, rest = input().split(' ', 1)
         if command == 'set':
             key, value = rest.split(' = ', 1)
-            value = memoryview("".join(value.split()).encode())
-            variables[key] = Parser.parse(value)
+            exp = "".join(value.split())
+            parser = Parser("".join(value.split()))
+            variables[key] = parser.parse(0, len(exp))
         elif command == 'get':
             print(variables.get(rest, rest))
 
