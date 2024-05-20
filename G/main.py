@@ -31,35 +31,37 @@ class Parser:
 
     def parse_number(self, i, j):
         n = int(self.exp[i])
-        if self.exp[i + 2] == '(':
-            left, k = self.parse_parentheses(i + 2, j)
-            return n * left, k
-        elif self.exp[i + 2] == '"':
-            left, k = self.parse_literal(i + 2, j)
-            return n * left, k
-        elif self.exp[i + 2].isalpha():
-            left, k = self.parse_identifier(i + 2, j)
-            return n * left, k
-        else:
-            return n, i + 2
+        match self.exp[i + 2]:
+            case '(':
+                left, k = self.parse_parentheses(i + 2, j)
+                return n * left, k
+            case '"':
+                left, k = self.parse_literal(i + 2, j)
+                return n * left, k
+            case _:
+                left, k = self.parse_identifier(i + 2, j)
+                return n * left, k
 
     def parse(self, i, j):
         if i == j:
             return ""
-        if self.exp[i] == '(':
-            left, k = self.parse_parentheses(i, j)
-            return left + self.parse(k, j)
-        elif self.exp[i] == '"':
-            left, k = self.parse_literal(i, j)
-            return left + self.parse(k, j)
-        elif self.exp[i].isalpha():
-            left, k = self.parse_identifier(i, j)
-            return left + self.parse(k, j)
-        elif self.exp[i].isdigit():
-            left, k = self.parse_number(i, j)
-            return left + self.parse(k, j)
-        elif self.exp[i] == '+':
-            return self.parse(i + 1, j)
+        match self.exp[i]:
+            case '(':
+                left, k = self.parse_parentheses(i, j)
+                return left + self.parse(k, j)
+            case '"':
+                left, k = self.parse_literal(i, j)
+                return left + self.parse(k, j)
+            case '+':
+                return self.parse(i + 1, j)
+            case _:
+                if self.exp[i].isalpha():
+                    left, k = self.parse_identifier(i, j)
+                    return left + self.parse(k, j)
+                elif self.exp[i].isdigit():
+                    left, k = self.parse_number(i, j)
+                    return left + self.parse(k, j)
+        return ""
 
 
 def main():
