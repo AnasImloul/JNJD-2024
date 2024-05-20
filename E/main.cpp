@@ -10,9 +10,7 @@ using namespace std;
 struct Trie {
     struct Node {
         Node* next[26] = {nullptr};
-        ll count = 0;
-        bool finish = false;
-        ll copies = 0;
+        ll count = 0, copies = 0;
     };
 
     Node* root;
@@ -27,7 +25,6 @@ struct Trie {
             node = node->next[c - 'a'];
             node->count += count;
         }
-        node->finish = true;
         node->copies += count;
     }
 
@@ -43,7 +40,7 @@ struct Trie {
             return node->count;
         }
 
-        ll res = (start <= prefix && prefix <= end && node->finish) ? node->copies : 0;
+        ll res = (start <= prefix && prefix <= end) ? node->copies : 0;
         for (ll letter = 0; letter < 26; letter++) {
             if (node->next[letter] != nullptr) {
                 prefix.push_back(char('a' + letter));
@@ -53,7 +50,6 @@ struct Trie {
         }
         return res;
     }
-
 
     inline static bool intersect(const string& prefix, const string& start, const string& end) {
         return (
