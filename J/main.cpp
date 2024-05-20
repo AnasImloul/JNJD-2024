@@ -5,7 +5,7 @@ using namespace std;
 
 int solve(vector<string>& logs) {
     int errors = 0, res = 0;
-    for (string log: logs) {
+    for (const string& log: logs) {
         if (log == "ERROR") errors++;
         else if (log == "RESOLVED") {
             if (errors > 0) {
