@@ -1,4 +1,8 @@
-#include <bits/stdc++.h>
+#include <vector>
+#include <iostream>
+#include <map>
+#include <climits>
+#include <algorithm>
 
 using namespace std;
 using ll = long long;
@@ -9,10 +13,10 @@ using ll = long long;
 #define distance(x1, y1, x2, y2) (square(x1 - x2) + square(y1 - y2))
 
 const ll MAX = 1 << 30;
-const ll CHUNKS = 1 << 6;
+const ll CHUNKS = 1 << 4;
 const ll CHUNK_SIZE = MAX / CHUNKS;
 
-const ll BOUNDS = 2;
+const ll BOUNDS = 1;
 
 map<pair<ll, ll>, string> mp;
 
@@ -46,7 +50,7 @@ int main() {
             ll x, y; cin >> x >> y;
             record res = {LLONG_MAX, {LLONG_MAX, LLONG_MAX}};
 
-            if (points.size() < 10000) {
+            if (points.size() < 1000) {
                 for (auto& p: points)
                     res = min(res, {distance(x, y, p.first, p.second), p});
             }
