@@ -53,15 +53,15 @@ int main() {
             if (points.size() < 1000) {
                 for (auto& p: points)
                     res = min(res, {distance(x, y, p.first, p.second), p});
-            }
-
-            ll chunk_x = x / CHUNK_SIZE, chunk_y = y / CHUNK_SIZE;
-            for (int dx = -BOUNDS; dx <= BOUNDS; dx++) {
-                for (int dy = -BOUNDS; dy <= BOUNDS; dy++) {
-                    if (chunk_x + dx < 0 || chunk_x + dx >= CHUNKS) continue;
-                    if (chunk_y + dy < 0 || chunk_y + dy >= CHUNKS) continue;
-                    for (auto& p: grid[chunk_x + dx][chunk_y + dy]) {
-                        res = min(res, {distance(x, y, p.first, p.second), p});
+            } else {
+                ll chunk_x = x / CHUNK_SIZE, chunk_y = y / CHUNK_SIZE;
+                for (int dx = -BOUNDS; dx <= BOUNDS; dx++) {
+                    for (int dy = -BOUNDS; dy <= BOUNDS; dy++) {
+                        if (chunk_x + dx < 0 || chunk_x + dx >= CHUNKS) continue;
+                        if (chunk_y + dy < 0 || chunk_y + dy >= CHUNKS) continue;
+                        for (auto &p: grid[chunk_x + dx][chunk_y + dy]) {
+                            res = min(res, {distance(x, y, p.first, p.second), p});
+                        }
                     }
                 }
             }
